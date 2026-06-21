@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HackAcademy — Etičko Hakovanje na Srpskom</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0b0f;--bg2:#111318;--bg3:#181a22;--bg4:#1e2028;
+  --border:#2a2d3a;--border2:#383c4e;
+  --text:#e8eaf2;--text2:#9ea3b8;--text3:#6b7190;
+  --accent:#00d4aa;--accent2:#0099ff;--accent3:#ff6b6b;--accent4:#ffa726;
+  --purple:#7c3aed;--green:#10b981;--red:#ef4444;--yellow:#f59e0b;
+  --radius:10px;--radius-lg:16px;
+}
+[data-theme="light"]{
+  --bg:#f0f2f8;--bg2:#ffffff;--bg3:#e8ecf4;--bg4:#dde2ef;
+  --border:#c8cedf;--border2:#b0b8d0;
+  --text:#1a1d2e;--text2:#4a5075;--text3:#7880a0;
+}
+body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100vh;overflow-x:hidden}
+.mono{font-family:'JetBrains Mono',monospace}
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:260px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:width .3s;overflow:hidden}
+.sidebar.collapsed{width:64px}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column}
+.logo{padding:20px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-shrink:0}
+.logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--accent2));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.logo-text{font-size:14px;font-weight:800;color:var(--accent);white-space:nowrap}
+.logo-sub{font-size:10px;color:var(--text3)}
+.nav{flex:1;padding:12px 8px;overflow-y:auto}
+.nav-section{margin-bottom:20px}
+.nav-label{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:0 8px 8px;white-space:nowrap;overflow:hidden}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius);cursor:pointer;transition:all .2s;margin-bottom:2px;user-select:none}
+.nav-item:hover{background:var(--bg3)}
+.nav-item.active{background:rgba(0,212,170,.12);border-left:3px solid var(--accent);color:var(--accent)}
+.nav-icon{font-size:18px;flex-shrink:0;width:20px;text-align:center}
+.nav-text{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden}
+.nav-badge{margin-left:auto;background:var(--accent);color:#000;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;flex-shrink:0}
+.topbar{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10;flex-shrink:0}
+.topbar-title{font-size:18px;font-weight:800;flex:1;white-space:nowrap}
+.topbar-search{flex:1;max-width:280px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:8px 14px;color:var(--text);font-family:'Syne',sans-serif;font-size:13px;outline:none}
+.topbar-search:focus{border-color:var(--accent)}
+.topbar-btn{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:8px 12px;color:var(--text);cursor:pointer;font-size:13px;font-family:'Syne',sans-serif;transition:all .2s;white-space:nowrap}
+.topbar-btn:hover{border-color:var(--accent);color:var(--accent)}
+.user-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--purple),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0}
+.content{padding:24px;flex:1}
+.welcome-banner{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:28px;margin-bottom:24px;position:relative;overflow:hidden}
+.welcome-banner::after{content:'⚡';position:absolute;right:24px;top:50%;transform:translateY(-50%);font-size:80px;opacity:.06;pointer-events:none}
+.welcome-name{font-size:24px;font-weight:800;margin-bottom:4px}
+.welcome-name span{color:var(--accent)}
+.welcome-sub{color:var(--text2);font-size:14px}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+.stat-label{font-size:12px;color:var(--text3);margin-bottom:8px}
+.stat-value{font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace}
+.stat-sub{font-size:11px;color:var(--text3);margin-top:4px}
+.progress-bar{height:6px;background:var(--bg3);border-radius:3px;margin-top:8px;overflow:hidden}
+.progress-fill{height:100%;border-radius:3px;transition:width .5s}
+.section-title{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border)}
+.modules-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px}
+.module-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;cursor:pointer;transition:all .2s;position:relative}
+.module-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.module-card .card-icon{font-size:28px;margin-bottom:10px;display:block}
+.module-card h3{font-size:14px;font-weight:700;margin-bottom:6px}
+.module-card p{font-size:12px;color:var(--text2);line-height:1.5}
+.module-card .card-progress{font-size:11px;color:var(--text3);margin-top:10px;display:flex;align-items:center;gap:8px}
+.module-card .card-level{position:absolute;top:12px;right:12px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:var(--bg3);color:var(--text3)}
+.cmd-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);margin-bottom:16px;overflow:hidden}
+.cmd-header{background:var(--bg3);padding:12px 16px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.cmd-name{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:700;color:var(--accent)}
+.cmd-category{font-size:11px;background:rgba(0,212,170,.1);color:var(--accent);padding:2px 8px;border-radius:20px}
+.cmd-body{padding:20px}
+.cmd-section{margin-bottom:16px}
+.cmd-section:last-child{margin-bottom:0}
+.cmd-section-title{font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.cmd-section-title::before{content:'';width:3px;height:12px;background:var(--accent);border-radius:2px;display:inline-block}
+.cmd-desc{font-size:14px;color:var(--text2);line-height:1.7}
+.cmd-code{background:var(--bg);font-family:'JetBrains Mono',monospace;font-size:13px;padding:12px 16px;border-radius:var(--radius);border:1px solid var(--border);color:var(--accent);margin:4px 0;position:relative;word-break:break-all}
+.cmd-output{background:#0d1117;font-family:'JetBrains Mono',monospace;font-size:12px;padding:12px 16px;border-radius:var(--radius);border:1px solid var(--border);color:#7fff7f;margin:4px 0;white-space:pre;overflow-x:auto;line-height:1.6}
+.tip-box{background:rgba(0,153,255,.08);border:1px solid rgba(0,153,255,.25);border-radius:var(--radius);padding:12px 16px;font-size:13px;color:var(--text2);margin:8px 0;line-height:1.6}
+.tip-box.warning{background:rgba(255,107,107,.08);border-color:rgba(255,107,107,.25)}
+.tip-box.success{background:rgba(16,185,129,.08);border-color:rgba(16,185,129,.25)}
+.terminal{background:#0d1117;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:20px}
+.terminal-header{background:var(--bg3);padding:10px 16px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border)}
+.terminal-dot{width:12px;height:12px;border-radius:50%}
+.terminal-title{font-size:12px;color:var(--text3);margin-left:8px}
+.terminal-body{padding:16px;min-height:200px;max-height:300px;overflow-y:auto}
+.terminal-line{font-family:'JetBrains Mono',monospace;font-size:13px;margin-bottom:4px;line-height:1.5}
+.terminal-line.prompt{color:#7fff7f}
+.terminal-line.output{color:#c8d3f5}
+.terminal-line.error{color:#ff6b6b}
+.terminal-input-row{display:flex;align-items:center;gap:8px;padding:12px 16px;border-top:1px solid var(--border)}
+.terminal-prompt-label{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--accent);white-space:nowrap}
+.terminal-input{flex:1;background:transparent;border:none;color:#c8d3f5;font-family:'JetBrains Mono',monospace;font-size:13px;outline:none}
+.quiz-container{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;margin-bottom:20px}
+.quiz-progress{display:flex;gap:6px;margin-bottom:24px}
+.quiz-dot{height:4px;flex:1;border-radius:2px;background:var(--border)}
+.quiz-dot.done{background:var(--accent)}
+.quiz-dot.current{background:var(--accent2)}
+.quiz-question{font-size:17px;font-weight:600;margin-bottom:20px;line-height:1.5}
+.quiz-options{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.quiz-option{background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius);padding:14px 18px;cursor:pointer;transition:all .2s;font-size:14px;text-align:left;font-family:'Syne',sans-serif;color:var(--text)}
+.quiz-option:hover:not(:disabled){border-color:var(--accent2)}
+.quiz-option.selected{border-color:var(--accent2);background:rgba(0,153,255,.1)}
+.quiz-option.correct{border-color:var(--green);background:rgba(16,185,129,.1);color:var(--green)}
+.quiz-option.wrong{border-color:var(--red);background:rgba(239,68,68,.1);color:var(--red)}
+.quiz-btn{background:var(--accent);color:#000;border:none;border-radius:var(--radius);padding:12px 28px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.quiz-btn:hover{opacity:.9}
+.quiz-btn:disabled{opacity:.4;cursor:not-allowed}
+.quiz-result{text-align:center;padding:20px 0}
+.quiz-score{font-size:56px;font-weight:800;font-family:'JetBrains Mono',monospace;color:var(--accent);margin-bottom:8px}
+.ai-container{display:flex;flex-direction:column;height:calc(100vh - 140px);background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.ai-messages{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px}
+.ai-msg{display:flex;gap:12px;align-items:flex-start}
+.ai-msg.user{flex-direction:row-reverse}
+.ai-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.ai-avatar.bot{background:linear-gradient(135deg,var(--accent),var(--accent2))}
+.ai-avatar.user{background:linear-gradient(135deg,var(--purple),var(--accent2))}
+.ai-bubble{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 18px;max-width:75%;font-size:14px;line-height:1.7;color:var(--text);word-break:break-word}
+.ai-msg.user .ai-bubble{background:rgba(0,212,170,.1);border-color:rgba(0,212,170,.3)}
+.ai-typing{display:flex;gap:4px;align-items:center;padding:4px 0}
+.ai-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:bounce .9s infinite}
+.ai-dot:nth-child(2){animation-delay:.15s}
+.ai-dot:nth-child(3){animation-delay:.3s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-8px)}}
+.ai-input-row{padding:16px;border-top:1px solid var(--border);display:flex;gap:10px}
+.ai-input{flex:1;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:12px 16px;color:var(--text);font-family:'Syne',sans-serif;font-size:14px;outline:none;resize:none}
+.ai-input:focus{border-color:var(--accent)}
+.ai-send-btn{background:var(--accent);color:#000;border:none;border-radius:var(--radius);padding:12px 20px;cursor:pointer;font-size:18px;transition:all .2s;flex-shrink:0}
+.ai-send-btn:hover{opacity:.85}
+.ai-send-btn:disabled{opacity:.4;cursor:not-allowed}
+.code-editor{background:#0d1117;border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px}
+.editor-header{background:var(--bg3);padding:10px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
+.editor-lang{font-size:11px;color:var(--text3)}
+.editor-actions{display:flex;gap:8px}
+.editor-btn{background:var(--bg4);border:1px solid var(--border);border-radius:8px;padding:6px 14px;color:var(--text);font-size:12px;cursor:pointer;font-family:'Syne',sans-serif;transition:all .2s}
+.editor-btn.run{background:rgba(16,185,129,.15);border-color:var(--green);color:var(--green)}
+.editor-btn:hover{border-color:var(--accent)}
+.code-textarea{width:100%;background:transparent;border:none;color:#c8d3f5;font-family:'JetBrains Mono',monospace;font-size:13px;padding:16px;outline:none;resize:vertical;min-height:200px;tab-size:4;line-height:1.6}
+.code-output{background:#000;padding:16px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#7fff7f;min-height:80px;border-top:1px solid var(--border);white-space:pre-wrap;line-height:1.6}
+.tabs{display:flex;gap:4px;background:var(--bg3);border-radius:var(--radius);padding:4px;margin-bottom:20px}
+.tab{flex:1;padding:8px 12px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;text-align:center;transition:all .2s;color:var(--text2);user-select:none}
+.tab.active{background:var(--bg2);color:var(--text)}
+.badges-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.badge-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;text-align:center;transition:all .2s}
+.badge-card.unlocked{border-color:var(--accent);background:rgba(0,212,170,.05)}
+.badge-card.locked{opacity:.4}
+.badge-icon{font-size:32px;display:block;margin-bottom:10px}
+.badge-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.badge-desc{font-size:11px;color:var(--text3)}
+.notif{position:fixed;top:20px;right:20px;background:var(--bg2);border:1px solid var(--accent);border-radius:var(--radius);padding:14px 18px;font-size:13px;z-index:1000;animation:slideIn .3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(100%)}to{opacity:1;transform:translateX(0)}}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:flex;align-items:center;justify-content:center}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius-lg);padding:28px;max-width:500px;width:90%;position:relative;max-height:85vh;overflow-y:auto}
+.modal-close{position:absolute;right:16px;top:16px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;color:var(--text2)}
+.modal-title{font-size:20px;font-weight:800;margin-bottom:16px;padding-right:40px}
+.path-item{display:flex;align-items:center;gap:16px;padding:14px 0;border-bottom:1px solid var(--border);cursor:pointer;transition:all .2s}
+.path-item:last-child{border-bottom:none}
+.path-item:hover{padding-left:8px}
+.path-num{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0}
+.path-num.done{background:var(--green);color:#fff}
+.path-num.current{background:var(--accent2);color:#fff}
+.path-num.locked{background:var(--bg3);color:var(--text3)}
+.path-info h4{font-size:14px;font-weight:600;margin-bottom:2px}
+.path-info p{font-size:12px;color:var(--text3)}
+.path-badge{margin-left:auto;font-size:11px;padding:3px 8px;border-radius:20px;white-space:nowrap}
+.path-badge.done{background:rgba(16,185,129,.15);color:var(--green)}
+.path-badge.current{background:rgba(0,153,255,.15);color:var(--accent2)}
+.path-badge.locked{background:var(--bg3);color:var(--text3)}
+.fade-in{animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+@media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr)}.modules-grid{grid-template-columns:repeat(2,1fr)}.badges-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.sidebar{width:64px}.sidebar .logo-text,.sidebar .nav-text,.sidebar .nav-label,.sidebar .nav-badge,.sidebar .logo-sub{display:none}.stats-grid{grid-template-columns:1fr 1fr}.modules-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="sidebar" id="sidebar">
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <div><div class="logo-text">HackAcademy</div><div class="logo-sub">Etičko Hakovanje</div></div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">
+        <div class="nav-label">Glavni Meni</div>
+        <div class="nav-item active" onclick="navigate('dashboard')"><span class="nav-icon">🏠</span><span class="nav-text">Dashboard</span></div>
+        <div class="nav-item" onclick="navigate('ai')"><span class="nav-icon">🤖</span><span class="nav-text">AI Mentor</span><span class="nav-badge">AI</span></div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Moduli Učenja</div>
+        <div class="nav-item" onclick="navigate('linux')"><span class="nav-icon">🐧</span><span class="nav-text">Linux</span></div>
+        <div class="nav-item" onclick="navigate('cmd')"><span class="nav-icon">💻</span><span class="nav-text">CMD Windows</span></div>
+        <div class="nav-item" onclick="navigate('powershell')"><span class="nav-icon">🔷</span><span class="nav-text">PowerShell</span></div>
+        <div class="nav-item" onclick="navigate('networks')"><span class="nav-icon">🌐</span><span class="nav-text">Mreže</span></div>
+        <div class="nav-item" onclick="navigate('python')"><span class="nav-icon">🐍</span><span class="nav-text">Python</span></div>
+        <div class="nav-item" onclick="navigate('hacking')"><span class="nav-icon">🔒</span><span class="nav-text">Etičko Hakovanje</span></div>
+      </div>
+      <div class="nav-section">
+        <div class="nav-label">Alati</div>
+        <div class="nav-item" onclick="navigate('lab')"><span class="nav-icon">🧪</span><span class="nav-text">Laboratorija</span></div>
+        <div class="nav-item" onclick="navigate('badges')"><span class="nav-icon">🏆</span><span class="nav-text">Bedževi</span></div>
+      </div>
+    </nav>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <button class="topbar-btn" onclick="toggleSidebar()" style="padding:8px 10px">☰</button>
+      <div class="topbar-title" id="topbar-title">🏠 Dashboard</div>
+      <input class="topbar-search" type="text" placeholder="🔍 Pretraži lekcije i komande...">
+      <button class="topbar-btn" onclick="toggleTheme()">🌓 Tema</button>
+      <button class="topbar-btn" onclick="navigate('lab')">🧪 Lab</button>
+      <div class="user-avatar" onclick="showProfile()">AK</div>
+    </div>
+    <div class="content" id="content"></div>
+  </div>
+</div>
+
+<div id="notif" class="notif" style="display:none"></div>
+<div id="modal-overlay" class="modal-overlay" style="display:none" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal">
+    <div class="modal-close" onclick="closeModal()">✕</div>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<script>
+const ST={
+  page:'dashboard',theme:'dark',xp:1240,level:3,
+  progress:{linux:45,cmd:30,powershell:20,networks:60,python:35,hacking:15},
+  completedLessons:12,totalLessons:48,
+  badges:['beginner','linux_fan','network_hero'],
+  aiMessages:[{role:'bot',text:'Zdravo! Ja sam tvoj AI Mentor za HackAcademy. 🤖\n\nMogu da ti pomognem sa:\n• Linux komandama i terminal-om\n• Windows CMD i PowerShell-om\n• Mrežnim protokolima (TCP/IP, DNS, HTTP)\n• Python programiranjem\n• Etičkim hakovanjem i sajber bezbednošću\n\nPitaj me bilo šta i odgovorim na srpskom jeziku! 💡'}],
+  aiLoading:false,
+  quizState:{q:0,score:0,answered:false,selected:null,done:false}
+};
+
+const DATA={
+  linux:[
+    {cmd:'ls',syntax:'ls [opcije] [putanja]',category:'Navigacija',
+     desc:'Prikazuje sadržaj direktorijuma. Jedna od najkorišćenijih komandi u Linuxu. Pomaže da vidiš koje fajlove i foldere imaš.',
+     real:'Zamislite da otvarate Pretraživač fajlova — ls radi isto, ali kroz terminal.',
+     example:'ls -la /home/korisnik',
+     output:`ukupno 48\ndrwxr-xr-x 5 korisnik korisnik 4096 jan 15 09:23 .\ndrwxr-xr-x 3 root     root     4096 jan 10 08:00 ..\n-rw------- 1 korisnik korisnik  220 jan 10 08:00 .bash_history\ndrwxr-xr-x 2 korisnik korisnik 4096 jan 15 09:20 Dokumenti\ndrwxr-xr-x 2 korisnik korisnik 4096 jan 12 14:30 Slike`,
+     errors:['ls bez putanje — prikazuje samo trenutni direktorijum','Koristiti tačku za skrivene fajlove: ls -la'],
+     tips:['Koristi ls -la za prikaz skrivenih fajlova (počinju sa tačkom)','ls -lh prikazuje veličine fajlova čitljivo (KB, MB, GB)','ls --color=auto bojapiše fajlove po tipu']},
+    {cmd:'cd',syntax:'cd [putanja]',category:'Navigacija',
+     desc:'Menja trenutni direktorijum (Change Directory). Koristi se za kretanje kroz strukturu fajlova u terminalu.',
+     real:'Kao dupli klik na folder u Pretraživaču — ali unutar terminala.',
+     example:'cd /var/log',
+     output:`korisnik@linux:~$ cd /var/log\nkorisnik@linux:/var/log$`,
+     errors:['cd putanjaKojaNePostoji — greška: No such file or directory','cd /root — bez sudo prava nema pristupa'],
+     tips:['cd ~ vraća te u home direktorijum','cd .. ide jedan nivo gore','cd - vraća u prethodni direktorijum']},
+    {cmd:'grep',syntax:'grep [opcije] "uzorak" fajl',category:'Pretraga',
+     desc:'Pretražuje tekst unutar fajlova ili standardnog ulaza. Izuzetno moćan alat koji koriste sistem administratori za pronalaženje specifičnih informacija u log fajlovima.',
+     real:'Kao Ctrl+F u Word-u, ali za fajlove u terminalu — i mnogo moćniji.',
+     example:'grep -ri "password" /etc/',
+     output:`/etc/nginx/sites-available/default:# password auth disabled\n/etc/nginx/nginx.conf:# ssl_password_file /etc/ssl/pass;`,
+     errors:['Zaboravljanje navodnika oko uzorka sa razmacima','grep -r bez putanje — pretraga od pogresnog mesta'],
+     tips:['grep -i za pretragu bez razlike u veličini slova','grep -n prikazuje broj linije gde je pronađen uzorak','Koristite grep | grep za višestepenu pretragu']},
+    {cmd:'chmod',syntax:'chmod [prava] fajl',category:'Dozvole',
+     desc:'Menja dozvole pristupa fajlu ili direktorijumu. Ključna komanda za bezbednost — kontroliše ko može čitati, pisati ili izvršavati fajl.',
+     real:'Kao Google Drive dozvole "Ko može da vidi" — ali za Linux fajlove.',
+     example:'chmod 755 script.sh',
+     output:`-rwxr-xr-x 1 korisnik korisnik 1024 jan 15 10:00 script.sh`,
+     errors:['chmod 777 na produkcijskim fajlovima — NIKAD! Ogromna ranjivost!','Zaboravljanje sudo za sistemske fajlove'],
+     tips:['755 = vlasnik sve, ostali mogu čitati i izvršavati','644 = vlasnik čitanje+pisanje, ostali samo čitanje','chmod -R 755 folder/ za rekurzivnu promenu']},
+    {cmd:'sudo',syntax:'sudo [komanda]',category:'Administracija',
+     desc:'Izvršava komandu sa pravima superkorisnika (root). Super User DO — privilegovano izvršavanje komandi.',
+     real:'Kao "Pokreni kao Administrator" na Windows-u.',
+     example:'sudo apt update && sudo apt upgrade',
+     output:`[sudo] password for korisnik:\nGet:1 http://archive.ubuntu.com/ubuntu focal InRelease [265 kB]\nReading package lists... Done`,
+     errors:['Korišćenje sudo za svaku komandu — nepotrebna izloženost','sudo rm -rf / — NIKAD ovo ne pokretati!'],
+     tips:['sudo -i za trajnu root sesiju (koristiti pažljivo)','sudo !! pokreće prethodnu komandu sa sudo','Uvek razumej šta radiš pre nego što koristiš sudo']},
+    {cmd:'nmap',syntax:'nmap [opcije] [cilj]',category:'Mreže/Bezbednost',
+     desc:'Network Mapper — skener portova i mrežni alat za otkrivanje uređaja i servisa na mreži. SAMO koristiti na mrežama za koje imate dozvolu!',
+     real:'Kao inspektor koji proverava koje su brave (portovi) otključane na zgradi (serveru) — ali SAMO sa dozvolom vlasnika.',
+     example:'nmap -sV 192.168.1.1',
+     output:`Nmap scan report for 192.168.1.1\nHost is up (0.0012s latency).\nPORT   STATE SERVICE VERSION\n22/tcp open  ssh     OpenSSH 8.4\n80/tcp open  http    Apache 2.4.46\n443/tcp open https   OpenSSL 1.1.1`,
+     errors:['Skeniranje mreža bez dozvole = KRIVIČNO DELO','nmap bez sudo može ne otkriti sve portove'],
+     tips:['Koristiti SAMO na sopstvenim ili dozvoljenim sistemima','nmap -sS za stealth SYN scan (zahteva sudo)','nmap -A za detaljan scan sa OS detekcijom']},
+  ],
+  cmd:[
+    {cmd:'ipconfig',syntax:'ipconfig [/opcija]',category:'Mreže',
+     desc:'Prikazuje konfiguraciju mrežnih adaptera na Windows sistemu. Ekvivalent Linux ip addr komande.',
+     real:'Kao pogled na informacije o mrežnoj kartici — adresa, maska podmreže, gateway.',
+     example:'ipconfig /all',
+     output:`Windows IP Configuration\n   Host Name . . . . : DESKTOP-ABC123\nEthernet adapter:\n   IPv4 Address. . . : 192.168.1.100\n   Subnet Mask . . . : 255.255.255.0\n   Default Gateway . : 192.168.1.1\n   DNS Servers . . . : 8.8.8.8\n                       8.8.4.4`,
+     errors:['ipconfig bez /all ne prikazuje DNS servere','Ne brkati sa Linux ifconfig komandom'],
+     tips:['ipconfig /flushdns čisti DNS keš (rešava probleme sa učitavanjem sajtova)','ipconfig /release pa /renew za dobijanje nove IP adrese od DHCP-a','Parametri se pišu sa kosom crtom /']},
+    {cmd:'netstat',syntax:'netstat [opcije]',category:'Mreže',
+     desc:'Prikazuje mrežne konekcije, tabele rutiranja, statistike interfejsa. Koristi se za otkrivanje otvorenih portova i sumnjivih konekcija.',
+     real:'Kao lista svih otvorenih vrata u zgradi — vidite koje konekcije su aktivne i koji programi ih koriste.',
+     example:'netstat -an | findstr LISTENING',
+     output:`TCP    0.0.0.0:80             0.0.0.0:0    LISTENING\nTCP    0.0.0.0:443            0.0.0.0:0    LISTENING\nTCP    0.0.0.0:3389           0.0.0.0:0    LISTENING`,
+     errors:['netstat može biti spor — koristiti timeout','Starije Windows verzije imaju drugačije opcije'],
+     tips:['netstat -b prikazuje koji program koristi port (zahteva admin prava)','netstat -e za statistike interfejsa','Kombini sa findstr za filtriranje']},
+    {cmd:'tasklist',syntax:'tasklist [/FI filter]',category:'Procesi',
+     desc:'Prikazuje listu svih aktivnih procesa. Korisno za pronalaženje sumnjivih procesa koji mogu ukazivati na malver.',
+     real:'Kao Menadžer zadataka (Task Manager), ali u terminalu.',
+     example:'tasklist /FI "STATUS eq running"',
+     output:`Image Name           PID  Session#  Mem Usage\n========================= ========\nSystem Idle Process    0   0         24 K\nexplorer.exe       1234   1     45,128 K\nchrome.exe         5678   1    234,568 K`,
+     errors:['tasklist ne prikazuje uvek skrivene malver procese','Neke procese može sakriti rootkit'],
+     tips:['tasklist /SVC prikazuje servise','taskkill /PID [broj] za gašenje procesa','Poredite sa normalnim Windows procesima da pronađete sumnjive']},
+    {cmd:'ping',syntax:'ping [opcije] [adresa/host]',category:'Mreže',
+     desc:'Testira mrežnu konekciju sa udaljenim hostom slanjem ICMP paketa. Osnovna komanda za dijagnozu mrežnih problema.',
+     real:'Kao bacanje loptice i čekanje da se vrati — testiraš da li je host dostupan.',
+     example:'ping -n 4 google.com',
+     output:`Pinging google.com [142.250.185.78] with 32 bytes of data:\nReply from 142.250.185.78: bytes=32 time=12ms TTL=118\nReply from 142.250.185.78: bytes=32 time=11ms TTL=118\nPing statistics: Sent=4, Received=4, Lost=0 (0% loss)`,
+     errors:['Firewall može blokirati ICMP, ping neće raditi','Ne koristiti ping za testiranje HTTPS servisa'],
+     tips:['ping -t za neprekidno slanje (Ctrl+C za stop)','Visok ping (latencija) može ukazivati na mrežne probleme','tracert je bolja dijagnostika za probleme u ruturi']},
+  ],
+  powershell:[
+    {cmd:'Get-Process',syntax:'Get-Process [ime]',category:'Procesi',
+     desc:'Prikazuje sve aktivne procese ili specifičan proces. Moćnija verzija tasklist-a sa objektno-orijentisanim izlazom.',
+     real:'Kao Task Manager na steroidima — dobijate .NET objekte koje možete filtrirati, sortirati i prosleđivati između komandi.',
+     example:'Get-Process | Sort-Object CPU -Descending | Select-Object -First 5',
+     output:`NPM(K)    PM(M)      WS(M)     CPU(s)     Id  ProcessName\n------    -----      -----     ------     --  -----------\n    89   234.45     312.23   1234.56   5678  chrome\n    45   123.12     145.67    456.78   1234  svchost`,
+     errors:['Get-Process | Stop-Process bez provere = potencijalno opasno','Zaboravljanje -ErrorAction SilentlyContinue za hvatanje grešaka'],
+     tips:['Get-Process chrome | Stop-Process za gašenje specifičnog procesa','Koristite Get-Process | Export-CSV za čuvanje izveštaja','Where-Object {$_.CPU -gt 10} za filtriranje po CPU']},
+    {cmd:'Invoke-WebRequest',syntax:'Invoke-WebRequest -Uri URL',category:'Mreže/Bezbednost',
+     desc:'Šalje HTTP zahteve na web servere. Koristi se za testiranje API-ja, preuzimanje fajlova i analizu web odgovora.',
+     real:'Kao Postman ili curl u PowerShell-u — možete testirati web servise direktno iz terminala.',
+     example:'Invoke-WebRequest -Uri "https://httpbin.org/get"',
+     output:`StatusCode        : 200\nStatusDescription : OK\nContent           : {"origin":"192.168.1.1","url":"https://httpbin.org/get"}\nHeaders           : {[Content-Type, application/json]}`,
+     errors:['URL mora počinjati sa https:// ili http://','TLS greške na starijim Windows verzijama'],
+     tips:['iwr je kratica za Invoke-WebRequest','Sačuvaj rezultat: $r = Invoke-WebRequest $url; $r.Content','Koristiti -Method POST za slanje podataka']},
+    {cmd:'Get-NetAdapter',syntax:'Get-NetAdapter [-Name ime]',category:'Mreže',
+     desc:'Prikazuje informacije o mrežnim adapterima sistema. Moćnija alternativa za ipconfig sa detaljnim informacijama.',
+     real:'Kao Device Manager za mrežne kartice u PowerShell-u.',
+     example:'Get-NetAdapter | Select-Object Name, Status, LinkSpeed',
+     output:`Name                  Status   LinkSpeed\n----                  ------   ---------\nEthernet              Up       1 Gbps\nWi-Fi                 Up       300 Mbps\nBluetooth Network     Disconnected  3 Mbps`,
+     errors:['Zahteva admin prava za neke operacije','Ime adaptera razlikuje se po sistemu'],
+     tips:['Get-NetIPAddress za IP adrese svih adaptera','Set-NetAdapter za promenu podešavanja (admin)','Kombinuj sa Where-Object za filtriranje']},
+  ],
+  networks:[
+    {concept:'IP Adresa',icon:'📍',
+     desc:'Internet Protocol adresa je jedinstveni numerički identifikator za svaki uređaj na mreži. IPv4 koristi 32-bitne adrese (4 broja od 0-255), a IPv6 128-bitne.',
+     real:'Kao poštanska adresa za kompjutere — svaki uređaj mora imati jedinstvenu adresu da bi primao i slao podatke na internetu.',
+     example:'IPv4: 192.168.1.100 | IPv6: 2001:0db8:85a3::8a2e:0370:7334',
+     detail:'Privatne IP adrese (192.168.x.x, 10.x.x.x, 172.16-31.x.x) se koriste unutar lokalnih mreža. Javne IP adrese su globalno rutabilne na internetu.'},
+    {concept:'TCP/IP Protokol',icon:'🔗',
+     desc:'Transmission Control Protocol/Internet Protocol — osnova interneta. TCP osigurava pouzdanu dostavu podataka, IP određuje rutu paketa kroz mrežu.',
+     real:'TCP je kao preporučena pošta sa povratnicom (garantovana dostava), UDP je kao obična razglednica (nema potvrde dostave).',
+     example:'TCP trodelni handshake: SYN → SYN-ACK → ACK (uspostavljanje konekcije)',
+     detail:'TCP rasklapa podatke u pakete, numerisuje ih i proverava da li su svi stigli. UDP je brži ali bez garantovane dostave (koristi se za video streaming, gaming).'},
+    {concept:'DNS - Domain Name System',icon:'🔤',
+     desc:'DNS prevodi ljudski čitljiva domenska imena (google.com) u IP adrese (142.250.185.78). Funkcioniše kao telefonski imenik interneta.',
+     real:'Kao kontakt lista u telefonu — ne morate pamtiti IP adrese, samo domenska imena. DNS ih prevodi automatski.',
+     example:'Browser: google.com → DNS upit → 142.250.185.78 → konekcija',
+     detail:'Hijerarhija: Root DNS → TLD (.com, .org, .rs) → Autoritativni DNS → Lokalni DNS keš. Rekurzivni resolver pronalazi odgovor u ime klijenta.'},
+    {concept:'DHCP',icon:'⚙️',
+     desc:'Dynamic Host Configuration Protocol automatski dodeljuje IP adrese i mrežne parametre uređajima kada se povežu na mrežu.',
+     real:'Kao recepcioner hotela koji dodeljuje sobe gostima — ne morate sami birati IP adresu, DHCP to radi automatski.',
+     example:'DORA proces: DISCOVER → OFFER → REQUEST → ACKNOWLEDGE',
+     detail:'DHCP server dodeljuje: IP adresu, masku podmreže, default gateway, DNS servere. Adresa se dodeljuje na određeni period (lease time).'},
+    {concept:'HTTP i HTTPS',icon:'🔐',
+     desc:'HyperText Transfer Protocol je protokol za web komunikaciju. HTTPS dodaje TLS/SSL enkripciju za bezbednu komunikaciju između browser-a i servera.',
+     real:'HTTP je kao razgovor na ulici (svi mogu prisluškivati), HTTPS je kao razgovor u šifrovanoj prostoriji (samo vi i sagovornik znaju šta se govori).',
+     example:'GET /index.html HTTP/1.1\nHost: example.com\n→ Server vraća HTML stranicu',
+     detail:'HTTPS koristi TLS sertifikate za verifikaciju identiteta servera i enkripciju podataka. Port 80 za HTTP, port 443 za HTTPS.'},
+  ],
+  python:[
+    {title:'Varijable i Tipovi Podataka',
+     code:`# Varijable u Python-u — "kutije" za čuvanje podataka
+ime = "Marko"          # String (tekst u navodnicima)
+godine = 25            # Integer (ceo broj)
+visina = 1.82          # Float (decimalni broj)
+programer = True       # Boolean (True/False)
+
+# f-string za uključivanje varijabli u tekst
+print(f"Ime: {ime}")
+print(f"Godine: {godine}")
+print(f"Visina: {visina}m")
+print(f"Programer: {programer}")
+
+# Provera tipa varijable
+print(type(ime))       # <class 'str'>
+print(type(godine))    # <class 'int'>`,
+     desc:'Varijable čuvaju podatke u memoriji. Python automatski prepoznaje tip podataka (dinamičko tipiziranje).'},
+    {title:'Liste i Petlje',
+     code:`# Lista — niz vrednosti
+komande = ["ls", "cd", "grep", "chmod", "nmap"]
+brojevi = [1, 2, 3, 4, 5]
+
+# For petlja — prolaz kroz svaki element
+print("Linux komande:")
+for komanda in komande:
+    print(f"  → {komanda}")
+
+# Enumerate — indeks i vrednost
+print("\\nNumerisana lista:")
+for i, komanda in enumerate(komande, 1):
+    print(f"{i}. {komanda}")
+
+# List comprehension — napredni Python
+duge = [k for k in komande if len(k) > 2]
+print(f"\\nKomande duže od 2 slova: {duge}")
+
+# Range petlja
+for n in range(1, 6):
+    print(f"Kvadrat od {n} = {n**2}")`,
+     desc:'Liste čuvaju više vrednosti. Petlje nam omogućavaju ponavljanje koda za svaki element.'},
+    {title:'Funkcije',
+     code:`# Definisanje funkcije sa def ključnom reči
+def pozdrav(ime, uloga="Korisnik"):
+    """Docstring: Kreira personalizovanu poruku."""
+    poruka = f"Zdravo, {ime}! Uloga: {uloga}"
+    return poruka
+
+# Pozivanje funkcije
+print(pozdrav("Ana"))
+print(pozdrav("Marko", "Admin"))
+
+# Funkcija za validaciju IP adrese
+def je_validna_ip(ip):
+    """Proverava da li je IP adresa ispravna."""
+    delovi = ip.split(".")
+    if len(delovi) != 4:
+        return False
+    try:
+        return all(0 <= int(d) <= 255 for d in delovi)
+    except ValueError:
+        return False
+
+# Testovi
+test_ips = ["192.168.1.1", "999.0.0.1", "abc.def.ghi.jkl"]
+for ip in test_ips:
+    status = "Validna" if je_validna_ip(ip) else "Nevalidna"
+    print(f"{ip}: {status}")`,
+     desc:'Funkcije su blokovi koda koji se mogu više puta koristiti. Osnova dobrog i organizovanog programiranja.'},
+    {title:'Rečnici (Dictionary) i Skupovi',
+     code:`# Rečnik — parovi ključ:vrednost
+korisnik = {
+    "ime": "Marko",
+    "uloga": "Bezbednosni Analist",
+    "xp": 1240,
+    "alati": ["nmap", "wireshark", "burp"]
+}
+
+# Pristupanje vrednostima
+print(f"Ime: {korisnik['ime']}")
+print(f"Alati: {', '.join(korisnik['alati'])}")
+
+# Dodavanje nove vrednosti
+korisnik["sertifikat"] = "CEH"
+print(f"Sertifikat: {korisnik['sertifikat']}")
+
+# Prolaz kroz rečnik
+print("\\nSvi podaci:")
+for kljuc, vrednost in korisnik.items():
+    print(f"  {kljuc}: {vrednost}")
+
+# Ugrađene metode
+print(f"\\nSvi ključevi: {list(korisnik.keys())}")`,
+     desc:'Rečnici čuvaju podatke kao parove ključ-vrednost. Idealni za čuvanje strukturiranih podataka.'},
+  ],
+  hacking:[
+    {tool:'Nmap',icon:'🗺️',category:'Skeniranje Mreže',legal:true,
+     desc:'Network Mapper — najpopularniji open-source alat za otkrivanje mrežnih servisa i portova. Koristiti SAMO na mrežama za koje imate pisanu dozvolu.',
+     usage:'nmap -sV -sC -p- 192.168.1.0/24',
+     cases:['Inventar mrežnih uređaja i otvorenih portova','Detekcija verzija servisa (Apache, SSH, FTP...)','Otkrivanje operativnog sistema hosta','Priprema izveštaja za penetration test'],
+     warning:'KORISTITI SAMO na mrežama za koje imate pisanu dozvolu vlasnika!'},
+    {tool:'Wireshark',icon:'🦈',category:'Analiza Saobraćaja',legal:true,
+     desc:'Grafički analizator mrežnih paketa. Hvata i analizira mrežni saobraćaj u realnom vremenu. Jedan od najvažnijih alata u sajber bezbednosti.',
+     usage:'Grafički interfejs — otvoriti program, izabrati mrežni interfejs i početi sa hvatanjem paketa.',
+     cases:['Dijagnoza mrežnih problema i latencije','Otkrivanje nezašifrovanog (HTTP) saobraćaja','CTF (Capture The Flag) takmičenja','Forenzička analiza mrežnih incidenata'],
+     warning:'Ne koristiti za hvatanje tuđeg saobraćaja bez izričite dozvole!'},
+    {tool:'Burp Suite',icon:'🔍',category:'Web Bezbednost',legal:true,
+     desc:'Platforma za testiranje bezbednosti web aplikacija. Deluje kao HTTP/HTTPS proxy između browser-a i web servera.',
+     usage:'Intercept mode: Browser → Burp Suite Proxy (127.0.0.1:8080) → Web Server',
+     cases:['Pronalaženje XSS (Cross-Site Scripting) ranjivosti','SQL Injection testiranje na dozvoljenim aplikacijama','CSRF (Cross-Site Request Forgery) analiza','Pregled i modifikacija HTTP zahteva u realnom vremenu'],
+     warning:'Koristiti isključivo na aplikacijama koje vam je vlasnik dozvolio testirati!'},
+    {tool:'Metasploit Framework',icon:'💻',category:'Penetration Testing',legal:true,
+     desc:'Najmoćniji framework za penetration testing. Sadrži hiljade modula za eksploataciju poznatih ranjivosti. ISKLJUČIVO za autorizovana testiranja.',
+     usage:'msfconsole → search [ranjivost] → use [modul] → set RHOSTS [cilj] → exploit',
+     cases:['Verifikacija da li je ranjivost iskorišćiva','Post-exploitation analiza u CTF takmičenjima','Priprema za bezbednosne sertifikate (CEH, OSCP)','Demonstracija ranjivosti klijentima u pen test izveštaju'],
+     warning:'Korišćenje bez dozvole je FEDERALNO KRIVIČNO DELO u većini zemalja!'},
+  ],
+  quizzes:{
+    linux:[
+      {q:'Koja komanda prikazuje sadržaj direktorijuma u Linuxu?',opts:['dir','ls','show','list'],correct:1},
+      {q:'Šta znači chmod 755?',opts:['Svi mogu sve','Vlasnik sve, ostali čitanje i izvršavanje','Niko nema pristup','Samo root ima pristup'],correct:1},
+      {q:'Koja komanda menja trenutni direktorijum?',opts:['mv','cp','cd','pwd'],correct:2},
+      {q:'Šta komanda grep -i radi drugačije?',opts:['Pretražuje rekurzivno','Ignoriše razliku malih/velikih slova','Prikazuje broj linija','Pretražuje binarnih fajlove'],correct:1},
+    ],
+    networks:[
+      {q:'Šta je DNS?',opts:['Dynamic Network Service','Domain Name System','Data Network Security','Distributed Name Server'],correct:1},
+      {q:'Koji port koristi HTTPS?',opts:['80','21','443','8080'],correct:2},
+      {q:'Šta je DHCP?',opts:['Dynamic Host Configuration Protocol','Direct HTTP Connection Protocol','Data Hub Control Point','Domain Host Configuration Proxy'],correct:0},
+      {q:'Koji TCP proces uspostavlja konekciju?',opts:['Jednodelni handshake','Dvodelni handshake','Trodelni handshake','Četverodelni handshake'],correct:2},
+    ],
+    python:[
+      {q:'Kako se u Python-u definiše funkcija?',opts:['function ime():','def ime():','func ime():','create ime():'],correct:1},
+      {q:'Koji je rezultat: len("Python")?',opts:['5','6','7','Python'],correct:1},
+      {q:'Šta je output ovog koda: print(2**3)?',opts:['6','8','5','23'],correct:1},
+    ]
+  }
+};
+
+let currentQuizData=[];
+let activeModuleTab='lessons';
+let activePyTab='lessons';
+
+function navigate(page){
+  ST.page=page;
+  document.querySelectorAll('.nav-item').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el=>{
+    if(el.querySelector('.nav-text')&&el.querySelector('.nav-text').textContent.toLowerCase().includes(page.toLowerCase())||
+       (page==='dashboard'&&el.querySelector('.nav-text')?.textContent==='Dashboard')||
+       (page==='ai'&&el.querySelector('.nav-text')?.textContent==='AI Mentor')||
+       (page==='lab'&&el.querySelector('.nav-text')?.textContent==='Laboratorija')||
+       (page==='badges'&&el.querySelector('.nav-text')?.textContent==='Bedževi'))el.classList.add('active');
+  });
+  const titles={dashboard:'🏠 Dashboard',linux:'🐧 Linux Komande',cmd:'💻 CMD Windows',powershell:'🔷 PowerShell',networks:'🌐 Mreže (Networking)',python:'🐍 Python Programiranje',hacking:'🔒 Etičko Hakovanje',lab:'🧪 Laboratorija',badges:'🏆 Bedževi',ai:'🤖 AI Mentor'};
+  document.getElementById('topbar-title').textContent=titles[page]||page;
+  document.getElementById('content').className='content fade-in';
+  render();
+}
+
+function render(){
+  const c=document.getElementById('content');
+  switch(ST.page){
+    case 'dashboard':renderDashboard(c);break;
+    case 'linux':renderModule(c,'linux');break;
+    case 'cmd':renderModule(c,'cmd');break;
+    case 'powershell':renderModule(c,'powershell');break;
+    case 'networks':renderNetworks(c);break;
+    case 'python':renderPython(c);break;
+    case 'hacking':renderHacking(c);break;
+    case 'lab':renderLab(c);break;
+    case 'badges':renderBadges(c);break;
+    case 'ai':renderAI(c);break;
+  }
+}
+
+function renderDashboard(c){
+  const p=ST.progress;
+  const avg=Math.round(Object.values(p).reduce((a,b)=>a+b,0)/Object.keys(p).length);
+  c.innerHTML=`
+  <div class="welcome-banner">
+    <div class="welcome-name">Dobrodošao, <span>AleksaKović</span>! 👾</div>
+    <div class="welcome-sub" style="margin-bottom:16px">Nivo ${ST.level} Haker • ${ST.xp} XP • ${ST.completedLessons} od ${ST.totalLessons} lekcija završeno</div>
+    <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text3);margin-bottom:6px"><span>Ukupan napredak</span><span>${avg}%</span></div>
+    <div class="progress-bar" style="height:8px"><div class="progress-fill" style="width:${avg}%;background:linear-gradient(90deg,var(--accent),var(--accent2))"></div></div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-label">⚡ XP Poeni</div><div class="stat-value" style="color:var(--accent)">${ST.xp}</div><div class="stat-sub">+120 ove sedmice</div></div>
+    <div class="stat-card"><div class="stat-label">📚 Lekcije</div><div class="stat-value" style="color:var(--accent2)">${ST.completedLessons}/${ST.totalLessons}</div><div class="stat-sub">${avg}% završeno</div><div class="progress-bar"><div class="progress-fill" style="width:${avg}%;background:var(--accent2)"></div></div></div>
+    <div class="stat-card"><div class="stat-label">🏆 Bedževi</div><div class="stat-value" style="color:var(--yellow)">${ST.badges.length}/12</div><div class="stat-sub">Nastavi da učiš!</div></div>
+    <div class="stat-card"><div class="stat-label">🔥 Streak</div><div class="stat-value" style="color:var(--accent3)">7</div><div class="stat-sub">dana zaredom</div></div>
+  </div>
+  <div class="section-title">📊 Napredak po Modulima</div>
+  <div class="modules-grid">
+    ${[['linux','🐧','Linux','Osnove terminala i sistem administracije'],
+       ['cmd','💻','CMD Windows','Windows Command Prompt komande'],
+       ['powershell','🔷','PowerShell','Napredna Windows automatizacija'],
+       ['networks','🌐','Mreže','TCP/IP, DNS, DHCP, HTTP/HTTPS'],
+       ['python','🐍','Python','Programiranje od nule do naprednog'],
+       ['hacking','🔒','Etičko Hak.','Bezbednost i pen testing']].map(([key,icon,name,desc])=>`
+    <div class="module-card" onclick="navigate('${key}')">
+      <span class="card-icon">${icon}</span>
+      <div class="card-level">${p[key]}%</div>
+      <h3>${name}</h3><p>${desc}</p>
+      <div class="card-progress"><div class="progress-bar" style="flex:1"><div class="progress-fill" style="width:${p[key]}%;background:var(--accent)"></div></div><span>${p[key]}%</span></div>
+    </div>`).join('')}
+  </div>
+  <div class="section-title">🗺️ Put Učenja</div>
+  <div class="cmd-block" style="padding:0">
+    <div class="cmd-body">
+    ${[{n:1,t:'Linux Osnove',d:'ls, cd, pwd, grep, chmod',s:'done',pg:'linux'},
+       {n:2,t:'Linux Mreže',d:'ifconfig, netstat, nmap skeniranje',s:'current',pg:'linux'},
+       {n:3,t:'Windows CMD',d:'ipconfig, netstat, tasklist, ping',s:'locked',pg:'cmd'},
+       {n:4,t:'PowerShell',d:'Get-Process, Invoke-WebRequest',s:'locked',pg:'powershell'},
+       {n:5,t:'Mrežni Protokoli',d:'TCP/IP, DNS, DHCP, HTTP/HTTPS',s:'done',pg:'networks'},
+       {n:6,t:'Python Osnove',d:'Varijable, liste, funkcije, rečnici',s:'current',pg:'python'}].map(l=>`
+    <div class="path-item" onclick="navigate('${l.pg}')">
+      <div class="path-num ${l.s}">${l.s==='done'?'✓':l.n}</div>
+      <div class="path-info"><h4>${l.t}</h4><p>${l.d}</p></div>
+      <div class="path-badge ${l.s}">${l.s==='done'?'✅ Završeno':l.s==='current'?'▶ U toku':'🔒 Zaključano'}</div>
+    </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function renderModule(c,key){
+  const items=DATA[key]||[];
+  const qData=DATA.quizzes?.[key];
+  c.innerHTML=`
+  <div class="tabs">
+    <div class="tab active" onclick="setTab(this,'mod-lessons')">📚 Lekcije</div>
+    ${qData?`<div class="tab" onclick="setTab(this,'mod-quiz')">🧪 Kviz</div>`:''}
+    <div class="tab" onclick="setTab(this,'mod-lab')">💻 Laboratorija</div>
+  </div>
+  <div id="mod-lessons">${items.map((item,i)=>buildCmdBlock(item,i)).join('')}</div>
+  ${qData?`<div id="mod-quiz" style="display:none"><div class="quiz-container" id="quiz-area">${buildQuiz(qData)}</div></div>`:''}
+  <div id="mod-lab" style="display:none">${buildLabHTML()}</div>`;
+  currentQuizData=qData||[];
+}
+
+function setTab(el,targetId){
+  el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  const prefix=targetId.split('-')[0]+'-';
+  document.querySelectorAll('[id^="'+prefix+'"]').forEach(el2=>{el2.style.display=el2.id===targetId?'block':'none';});
+}
+
+function buildCmdBlock(item,idx){
+  if(item.concept){
+    return`<div class="cmd-block">
+      <div class="cmd-header"><span style="font-size:24px">${item.icon}</span><span class="cmd-name">${item.concept}</span><span class="cmd-category">Mrežni Koncept</span></div>
+      <div class="cmd-body">
+        <div class="cmd-section"><div class="cmd-section-title">Objašnjenje</div><div class="cmd-desc">${item.desc}</div></div>
+        <div class="cmd-section"><div class="cmd-section-title">Primer iz stvarnog života</div><div class="cmd-desc">${item.real}</div></div>
+        <div class="cmd-section"><div class="cmd-section-title">Primer</div><div class="cmd-code">${item.example}</div></div>
+        <div class="cmd-section"><div class="cmd-section-title">Tehnički detalji</div><div class="cmd-desc">${item.detail}</div></div>
+      </div>
+    </div>`;
+  }
+  return`<div class="cmd-block">
+    <div class="cmd-header">
+      <span class="cmd-name">${item.cmd||item.tool}</span>
+      <span class="cmd-category">${item.category}</span>
+      ${item.legal!==undefined?'<span style="font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(16,185,129,.15);color:var(--green)">✓ Legalan Alat</span>':''}
+    </div>
+    <div class="cmd-body">
+      ${item.syntax?`<div class="cmd-section"><div class="cmd-section-title">Sintaksa</div><div class="cmd-code">${item.syntax}</div></div>`:''}
+      <div class="cmd-section"><div class="cmd-section-title">Objašnjenje</div><div class="cmd-desc">${item.desc}</div></div>
+      <div class="cmd-section"><div class="cmd-section-title">Primer iz stvarnog života</div><div class="cmd-desc">${item.real}</div></div>
+      <div class="cmd-section"><div class="cmd-section-title">Praktičan primer</div><div class="cmd-code">${item.example||item.usage}</div></div>
+      ${item.output?`<div class="cmd-section"><div class="cmd-section-title">Očekivani izlaz</div><div class="cmd-output">${item.output}</div></div>`:''}
+      ${item.cases?`<div class="cmd-section"><div class="cmd-section-title">Slučajevi korišćenja</div>${item.cases.map(c=>`<div class="tip-box success" style="margin-bottom:4px">✓ ${c}</div>`).join('')}</div>`:''}
+      ${item.errors?`<div class="cmd-section"><div class="cmd-section-title">Česte greške početnika</div>${item.errors.map(e=>`<div class="tip-box warning" style="margin-bottom:4px">⚠️ ${e}</div>`).join('')}</div>`:''}
+      ${item.tips?`<div class="cmd-section"><div class="cmd-section-title">Saveti i Najbolje Prakse</div>${item.tips.map(t=>`<div class="tip-box" style="margin-bottom:4px">💡 ${t}</div>`).join('')}</div>`:''}
+      ${item.warning?`<div class="tip-box warning" style="margin-top:12px"><strong>⛔ UPOZORENJE:</strong> ${item.warning}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function renderNetworks(c){
+  c.innerHTML=`
+  <div class="cmd-block" style="margin-bottom:20px">
+    <div class="cmd-header"><span class="cmd-name">🌐 Dijagram Mrežne Topologije</span></div>
+    <div class="cmd-body" style="padding:16px">
+      <svg viewBox="0 0 680 260" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto">
+        <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 Z" fill="#00d4aa"/></marker></defs>
+        <ellipse cx="340" cy="40" rx="65" ry="28" fill="#1e2028" stroke="#2a2d3a" stroke-width="1.5"/>
+        <text x="340" y="36" text-anchor="middle" fill="#9ea3b8" font-size="11" font-family="JetBrains Mono,monospace">🌐 Internet</text>
+        <text x="340" y="52" text-anchor="middle" fill="#6b7190" font-size="9" font-family="JetBrains Mono,monospace">203.0.113.1</text>
+        <rect x="290" y="110" width="100" height="42" rx="8" fill="#1e2028" stroke="#00d4aa" stroke-width="1.5"/>
+        <text x="340" y="128" text-anchor="middle" fill="#00d4aa" font-size="11" font-family="JetBrains Mono,monospace">🔀 Router</text>
+        <text x="340" y="144" text-anchor="middle" fill="#6b7190" font-size="9" font-family="JetBrains Mono,monospace">192.168.1.1</text>
+        <rect x="290" y="198" width="100" height="38" rx="8" fill="#1e2028" stroke="#0099ff" stroke-width="1.5"/>
+        <text x="340" y="214" text-anchor="middle" fill="#0099ff" font-size="11" font-family="JetBrains Mono,monospace">⚡ Switch</text>
+        <text x="340" y="228" text-anchor="middle" fill="#6b7190" font-size="9" font-family="JetBrains Mono,monospace">Layer 2</text>
+        <rect x="60" y="198" width="88" height="38" rx="8" fill="#1e2028" stroke="#7c3aed" stroke-width="1"/>
+        <text x="104" y="214" text-anchor="middle" fill="#a78bfa" font-size="10" font-family="JetBrains Mono,monospace">💻 PC-1</text>
+        <text x="104" y="228" text-anchor="middle" fill="#6b7190" font-size="9" font-family="JetBrains Mono,monospace">192.168.1.10</text>
+        <rect x="536" y="198" width="88" height="38" rx="8" fill="#1e2028" stroke="#7c3aed" stroke-width="1"/>
+        <text x="580" y="214" text-anchor="middle" fill="#a78bfa" font-size="10" font-family="JetBrains Mono,monospace">📱 PC-2</text>
+        <text x="580" y="228" text-anchor="middle" fill="#6b7190" font-size="9" font-family="JetBrains Mono,monospace">192.168.1.20</text>
+        <rect x="510" y="110" width="90" height="42" rx="8" fill="#1e2028" stroke="#f59e0b" stroke-width="1"/>
+        <text x="555" y="128" text-anchor="middle" fill="#f59e0b" font-size="10" font-family="JetBrains Mono,monospace">📋 DNS</text>
+        <text x="555" y="144" text-anchor="middle" fill="#6b7190" font-size="9" font-family="JetBrains Mono,monospace">8.8.8.8</text>
+        <line x1="340" y1="68" x2="340" y2="110" stroke="#00d4aa" stroke-width="1.5" stroke-dasharray="4,2" marker-end="url(#arr)"/>
+        <line x1="340" y1="152" x2="340" y2="198" stroke="#0099ff" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="290" y1="217" x2="148" y2="217" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="390" y1="217" x2="536" y2="217" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#arr)"/>
+        <line x1="390" y1="131" x2="510" y2="131" stroke="#f59e0b" stroke-width="1" stroke-dasharray="3,2"/>
+        <text x="315" y="88" text-anchor="end" fill="#6b7190" font-size="8" font-family="JetBrains Mono,monospace">WAN</text>
+        <text x="365" y="176" text-anchor="start" fill="#6b7190" font-size="8" font-family="JetBrains Mono,monospace">LAN</text>
+        <text x="450" y="125" text-anchor="middle" fill="#f59e0b" font-size="8" font-family="JetBrains Mono,monospace">DNS Query</text>
+      </svg>
+    </div>
+  </div>
+  ${DATA.networks.map((item,i)=>buildCmdBlock(item,i)).join('')}`;
+}
+
+function renderPython(c){
+  c.innerHTML=`
+  <div class="tabs">
+    <div class="tab active" onclick="setPyTabFn(this,'py-lessons')">📚 Lekcije</div>
+    <div class="tab" onclick="setPyTabFn(this,'py-editor')">💻 Slobodni Editor</div>
+    <div class="tab" onclick="setPyTabFn(this,'py-quiz')">🧪 Kviz</div>
+  </div>
+  <div id="py-lessons">${DATA.python.map((l,i)=>`
+    <div class="cmd-block">
+      <div class="cmd-header"><span class="cmd-name">🐍 ${l.title}</span></div>
+      <div class="cmd-body">
+        <div class="cmd-section"><div class="cmd-section-title">Objašnjenje</div><div class="cmd-desc">${l.desc}</div></div>
+        <div class="code-editor">
+          <div class="editor-header">
+            <span class="editor-lang">Python 3.x</span>
+            <div class="editor-actions">
+              <button class="editor-btn run" onclick="runPython('py-ed-${i}','py-out-${i}')">▶ Pokreni</button>
+              <button class="editor-btn" onclick="copyCode('py-ed-${i}')">📋 Kopiraj</button>
+            </div>
+          </div>
+          <textarea class="code-textarea" id="py-ed-${i}">${l.code}</textarea>
+          <div class="code-output" id="py-out-${i}" style="color:var(--text3)">Klikni ▶ Pokreni da vidiš izlaz...</div>
+        </div>
+      </div>
+    </div>`).join('')}</div>
+  <div id="py-editor" style="display:none">
+    <div class="cmd-block">
+      <div class="cmd-header"><span class="cmd-name">🐍 Python Slobodni Editor</span><span class="cmd-category">Sandbox</span></div>
+      <div class="cmd-body">
+        <div class="code-editor">
+          <div class="editor-header">
+            <span class="editor-lang">Python 3.x — Slobodni Editor</span>
+            <div class="editor-actions">
+              <button class="editor-btn run" onclick="runPython('py-free','py-free-out')">▶ Pokreni</button>
+              <button class="editor-btn" onclick="document.getElementById('py-free').value=''">🗑 Obriši</button>
+            </div>
+          </div>
+          <textarea class="code-textarea" id="py-free" style="min-height:300px"># Napiši Python kod ovde
+# Podrška za: print, range, len, type, int, str, float, list, dict, for, while, if, def, class
+
+ime = input("Tvoje ime: ") if False else "Student"
+print(f"Zdravo, {ime}!")
+print("Srecan rad sa Python-om! 🐍")</textarea>
+          <div class="code-output" id="py-free-out" style="color:var(--text3)">Klikni ▶ Pokreni...</div>
+        </div>
+        <div class="tip-box">💡 Simulirani Python editor. Za puno Python iskustvo, instaliraj Python 3 sa python.org i koristi VS Code.</div>
+      </div>
+    </div>
+  </div>
+  <div id="py-quiz" style="display:none">
+    <div class="quiz-container" id="py-quiz-area">${buildQuiz(DATA.quizzes.python)}</div>
+  </div>`;
+  currentQuizData=DATA.quizzes.python;
+}
+
+function setPyTabFn(el,targetId){
+  el.parentElement.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  ['py-lessons','py-editor','py-quiz'].forEach(id=>{const e=document.getElementById(id);if(e)e.style.display=id===targetId?'block':'none';});
+}
+
+const pySimulator={
+  run(code){
+    const lines=[];
+    const fakePrint=(...args)=>lines.push(args.map(a=>{
+      if(Array.isArray(a))return`[${a.join(', ')}]`;
+      if(typeof a==='boolean')return a?'True':'False';
+      if(a===null)return'None';
+      if(typeof a==='object')return JSON.stringify(a);
+      return String(a);
+    }).join(' '));
+    try{
+      let mod=code
+        .replace(/True/g,'true').replace(/False/g,'false').replace(/None/g,'null')
+        .replace(/print\s*\(/g,'__p__(')
+        .replace(/input\s*\([^)]*\)/g,'"input_simuliran"')
+        .replace(/\*\*/g,'**POWER**').split('**POWER**').reduce((acc,part,i,arr)=>{
+          if(i===arr.length-1)return acc+part;
+          return acc+part+'**';
+        });
+      mod=mod.replace(/(\w+)\*\*(\w+)/g,'Math.pow($1,$2)');
+      const fn=new Function('__p__',mod);
+      fn(fakePrint);
+      return lines.join('\n')||'(program nije ništa ispisao)';
+    }catch(e){
+      return`❌ Greška: ${e.message}\n\nSavet: Proveri sintaksu koda. Python ne prihvata JavaScript sintaksu!`;
+    }
+  }
+};
+
+function runPython(edId,outId){
+  const ed=document.getElementById(edId);
+  const out=document.getElementById(outId);
+  if(!ed||!out)return;
+  out.textContent='⏳ Izvršavanje koda...';
+  out.style.color='var(--text3)';
+  setTimeout(()=>{
+    const result=pySimulator.run(ed.value);
+    out.textContent=result;
+    out.style.color=result.startsWith('❌')?'#ff6b6b':'#7fff7f';
+    if(!result.startsWith('❌'))showNotif('✅ Kod izvršen!');
+  },400);
+}
+
+function copyCode(edId){
+  const ed=document.getElementById(edId);
+  if(!ed)return;
+  navigator.clipboard.writeText(ed.value).then(()=>showNotif('📋 Kod kopiran!')).catch(()=>showNotif('Kopiranje nije uspelo'));
+}
+
+function renderHacking(c){
+  c.innerHTML=`
+  <div class="tip-box warning" style="margin-bottom:20px;padding:16px 20px">
+    <strong>⚖️ VAŽNO PRAVNO OBAVEŠTENJE:</strong><br>
+    Sve lekcije su isključivo za edukativne svrhe. Koristite ovo znanje SAMO na sistemima koje posedujete ili za koje imate pisanu dozvolu.
+    Neovlašćeno hakovanje je krivično delo u Srbiji i svim zemljama sveta!
+  </div>
+  <div class="section-title">🔒 Osnove Sajber Bezbednosti</div>
+  <div class="modules-grid" style="margin-bottom:24px">
+    ${[['CIA Trijada','🔐','Poverljivost (Confidentiality), Integritet (Integrity), Dostupnost (Availability) — tri osnovna principa informacione bezbednosti','Osnova'],
+       ['Tipovi Napada','⚔️','Phishing, SQL Injection, XSS, CSRF, Man-in-the-Middle, DDoS — najčešći vektori napada','Teorija'],
+       ['Pen Testing','🗡️','Metodologija etičkog hakovanja: Reconnaissance → Scanning → Exploitation → Reporting','Proces']].map(([n,ic,d,cat])=>`
+    <div class="module-card"><span class="card-icon">${ic}</span><div class="card-level">${cat}</div><h3>${n}</h3><p>${d}</p></div>`).join('')}
+  </div>
+  <div class="section-title">🛠️ Legalni Bezbednosni Alati</div>
+  ${DATA.hacking.map((item,i)=>buildCmdBlock(item,i)).join('')}
+  <div class="cmd-block">
+    <div class="cmd-header"><span class="cmd-name">📋 Faze Penetration Testiranja</span><span class="cmd-category">Metodologija</span></div>
+    <div class="cmd-body">
+      ${[['1. Prikupljanje Informacija (Recon)','Pasivno (OSINT, Shodan, LinkedIn, Google dork) i aktivno (nmap) prikupljanje informacija.'],
+         ['2. Skeniranje i Enumeracija','Pronalaženje otvorenih portova, servisa, verzija softvera i potencijalnih ranjivosti.'],
+         ['3. Analiza Ranjivosti','Istraživanje CVE baze, Exploit-DB i NVD za pronađene ranjivosti.'],
+         ['4. Eksploatacija (uz pisanu dozvolu!)','Pokušaj iskorišćavanja ranjivosti u kontrolisanom okruženju sa ugovorom.'],
+         ['5. Post-Eksploatacija','Dokumentovanje dostignutog pristupa i pronađenih podataka za izveštaj.'],
+         ['6. Izveštavanje','Profesionalni izveštaj: Executive Summary + Tehnički nalazi + Preporuke za popravku.']].map(([t,d],i)=>`
+      <div style="display:flex;gap:16px;margin-bottom:16px;align-items:flex-start">
+        <div style="width:32px;height:32px;background:rgba(0,212,170,.1);border:1px solid var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--accent);flex-shrink:0">${i+1}</div>
+        <div><div style="font-size:14px;font-weight:700;margin-bottom:4px">${t}</div><div class="cmd-desc">${d}</div></div>
+      </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+function buildLabHTML(){
+  return`<div>
+    <div class="terminal">
+      <div class="terminal-header">
+        <div class="terminal-dot" style="background:#ff5f57"></div>
+        <div class="terminal-dot" style="background:#febc2e"></div>
+        <div class="terminal-dot" style="background:#28c840"></div>
+        <span class="terminal-title">🧪 Sandbox Terminal — Bezbedno Linux Okruženje</span>
+      </div>
+      <div class="terminal-body" id="term-body">
+        <div class="terminal-line output">HackAcademy Linux Sandbox v2.0 — Simulirani Terminal</div>
+        <div class="terminal-line output">Dostupne komande: ls, cd, pwd, echo, cat, grep, whoami, uname, date, clear, help</div>
+        <div class="terminal-line output" style="color:var(--accent)">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</div>
+      </div>
+      <div class="terminal-input-row">
+        <span class="terminal-prompt-label">student@hack-lab:~$</span>
+        <input class="terminal-input" type="text" id="term-input" placeholder="Unesi Linux komandu..." onkeydown="handleTermInput(event)">
+      </div>
+    </div>
+    <div class="tip-box">💡 Sandbox okruženje — komande se simuliraju i ne utiču na pravi sistem. Učite bezbedan Linux!</div>
+  </div>`;
+}
+
+function renderLab(c){
+  c.innerHTML=`<div class="section-title">🧪 Laboratorija — Linux Sandbox</div>${buildLabHTML()}`;
+}
+
+const termCommands={
+  ls(args){
+    const fakeFS={'':['.bashrc','.bash_history','Dokumenti','Preuzimanja','Slike','skripte'],'Dokumenti':['izvestaj.txt','notes.md'],'skripte':['scan.sh','backup.py']};
+    const path=args[0]||'';
+    const files=fakeFS[path]||fakeFS[''];
+    return[files.join('  ')];
+  },
+  'ls -la'(){return[`ukupno 48\ndrwxr-xr-x 5 student student 4096 jan 15 09:23 .\ndrwxr-xr-x 3 root    root    4096 jan 10 08:00 ..\n-rw------- 1 student student  220 jan 10 08:00 .bash_history\n-rw-r--r-- 1 student student  807 jan 10 08:00 .bashrc\ndrwxr-xr-x 2 student student 4096 jan 15 09:20 Dokumenti\ndrwxr-xr-x 2 student student 4096 jan 12 14:30 skripte`]},
+  pwd(){return['/home/student']},
+  whoami(){return['student']},
+  date(){return[new Date().toLocaleString('sr-RS')]},
+  uname(args){return args.includes('-a')?['Linux hacklab 5.15.0-89-generic #99-Ubuntu SMP Mon Oct 30 20:42:41 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux']:['Linux']},
+  echo(args){return[args.join(' ')||'']},
+  cat(args){
+    const files={'.bashrc':'# ~/.bashrc\nexport PS1="\\u@hack-lab:\\w$ "\nalias ll="ls -la"\nalias cls="clear"','notes.md':'# Beleške\n- nmap -sV za otkrivanje servisa\n- chmod 755 za izvršne fajlove\n- grep -r za rekurzivnu pretragu'};
+    const fn=args[0];
+    return[files[fn]||`cat: ${fn||'(nije naveden fajl)'}: Fajl ne postoji`];
+  },
+  grep(args){
+    if(!args.length)return['grep: nije naveden uzorak za pretragu'];
+    return[`grep: Pretraga za "${args[0]}" — u sandbox okruženju nema stvarnih fajlova za pretragu`,`Koristiti: grep "uzorak" fajl.txt`];
+  },
+  help(){return['Dostupne komande:','  ls [-la]   - lista fajlova','  cd [dir]   - promeni direktorijum','  pwd        - trenutna putanja','  echo [txt] - ispiši tekst','  cat [fajl] - prikaži sadržaj fajla','  grep       - pretraga teksta','  whoami     - prikaži korisnika','  uname -a   - info o sistemu','  date       - datum i vreme','  clear      - obriši terminal','  help       - ova pomoć']},
+  clear(){return['__clear__']},
+  cd(args){return[`Prešao u: /home/student/${args[0]||''}`.replace(/\/$/,'')]},
+  man(args){return[`man ${args[0]||'(komanda)'}:\nKoristiti "help" za listu komandi u sandbox-u`]},
+  ls(args){
+    if(args[0]==='-la'||args[0]==='-al')return termCommands['ls -la']();
+    const files=['.bashrc','.bash_history','Dokumenti','Preuzimanja','Slike','skripte'];
+    return[files.join('  ')];
+  }
+};
+
+function handleTermInput(e){
+  if(e.key!=='Enter')return;
+  const input=e.target;
+  const raw=input.value.trim();
+  input.value='';
+  if(!raw)return;
+  const parts=raw.split(' ');
+  const cmd=parts[0];
+  const args=parts.slice(1);
+  const body=document.getElementById('term-body');
+  const addLine=(t,cls='output')=>{
+    t.split('\n').forEach(line=>{
+      const d=document.createElement('div');
+      d.className='terminal-line '+cls;
+      d.textContent=line;
+      body.appendChild(d);
+    });
+  };
+  addLine(`student@hack-lab:~$ ${raw}`,'prompt');
+  const handler=termCommands[cmd];
+  if(handler){
+    const out=handler(args);
+    if(out[0]==='__clear__'){body.innerHTML='';return;}
+    out.forEach(l=>addLine(l));
+  }else{
+    addLine(`bash: ${cmd}: komanda nije pronađena`,'error');
+    addLine('Kucaj "help" za listu dostupnih komandi');
+  }
+  body.scrollTop=body.scrollHeight;
+}
+
+function buildQuiz(questions){
+  if(!questions||!questions.length)return'<p>Kviz nije dostupan.</p>';
+  currentQuizData=questions;
+  ST.quizState={q:0,score:0,answered:false,selected:null,done:false};
+  return renderQuizState(questions);
+}
+
+function renderQuizState(questions){
+  const qs=ST.quizState;
+  questions=questions||currentQuizData;
+  if(qs.done){
+    const pct=Math.round(qs.score/questions.length*100);
+    return`<div class="quiz-result">
+      <div class="quiz-score">${pct}%</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px">${pct>=70?'Odlično! 🎉':'Nastavi vežbanje! 💪'}</div>
+      <div style="color:var(--text2);margin-bottom:20px">Tačnih odgovora: ${qs.score} od ${questions.length}</div>
+      <button class="quiz-btn" onclick="restartQuiz()">🔄 Ponovi Kviz</button>
+    </div>`;
+  }
+  const q=questions[qs.q];
+  return`
+  <div class="quiz-progress">${questions.map((_,i)=>`<div class="quiz-dot ${i<qs.q?'done':i===qs.q?'current':''}"></div>`).join('')}</div>
+  <div style="font-size:12px;color:var(--text3);margin-bottom:12px">Pitanje ${qs.q+1} od ${questions.length}</div>
+  <div class="quiz-question">${q.q}</div>
+  <div class="quiz-options">${q.opts.map((opt,i)=>`
+    <button class="quiz-option ${qs.answered?(i===q.correct?'correct':i===qs.selected&&qs.selected!==q.correct?'wrong':qs.selected===i?'selected':''):(qs.selected===i?'selected':'')}" onclick="${!qs.answered?`quizSelect(${i})`:''}()" ${qs.answered?'disabled':''}>
+      ${String.fromCharCode(65+i)}. ${opt}
+    </button>`).join('')}</div>
+  ${qs.answered?`<div class="tip-box ${qs.selected===q.correct?'success':'warning'}" style="margin-bottom:16px">${qs.selected===q.correct?'✅ Tačno! Odlično!':'❌ Netačno. Tačan odgovor: '+String.fromCharCode(65+q.correct)+'. '+q.opts[q.correct]}</div>`:''}
+  <button class="quiz-btn" id="quiz-main-btn" onclick="${qs.answered?'quizNext':'quizCheck'}()" ${!qs.answered&&qs.selected===null?'disabled':''}>${qs.answered?(qs.q===questions.length-1?'Završi Kviz':'Sledeće Pitanje →'):'Proveri Odgovor'}</button>`;
+}
+
+function quizSelect(i){
+  if(ST.quizState.answered)return;
+  ST.quizState.selected=i;
+  document.querySelectorAll('.quiz-option').forEach((el,idx)=>{
+    el.className='quiz-option'+(idx===i?' selected':'');
+  });
+  const btn=document.getElementById('quiz-main-btn');
+  if(btn)btn.disabled=false;
+}
+
+function quizCheck(){
+  const qs=ST.quizState;
+  if(qs.selected===null)return;
+  qs.answered=true;
+  const q=currentQuizData[qs.q];
+  if(qs.selected===q.correct){qs.score++;ST.xp+=10;showNotif('✅ Tačno! +10 XP');}
+  else{showNotif('❌ Pogrešno! Pročitaj objašnjenje');}
+  refreshQuizArea();
+}
+
+function quizNext(){
+  const qs=ST.quizState;
+  if(qs.q===currentQuizData.length-1){qs.done=true;}
+  else{qs.q++;qs.answered=false;qs.selected=null;}
+  refreshQuizArea();
+}
+
+function restartQuiz(){
+  ST.quizState={q:0,score:0,answered:false,selected:null,done:false};
+  refreshQuizArea();
+}
+
+function refreshQuizArea(){
+  const qa=document.getElementById('quiz-area')||document.getElementById('py-quiz-area');
+  if(qa)qa.innerHTML=renderQuizState();
+}
+
+function renderBadges(c){
+  const all=[
+    {id:'beginner',icon:'🌱',name:'Početnik',desc:'Završi prvu lekciju'},
+    {id:'linux_fan',icon:'🐧',name:'Linux Fan',desc:'Završi 5 Linux lekcija'},
+    {id:'network_hero',icon:'🌐',name:'Mrežni Heroj',desc:'Završi Networking modul'},
+    {id:'python_snake',icon:'🐍',name:'Piton Mađioničar',desc:'Napiši 10 Python programa'},
+    {id:'hacker_ethics',icon:'🔒',name:'Etički Haker',desc:'Završi Hacking modul'},
+    {id:'quiz_master',icon:'🧪',name:'Kviz Majstor',desc:'Položi 10 kvizova'},
+    {id:'streak_7',icon:'🔥',name:'7-Dnevni Streak',desc:'Uči 7 dana zaredom'},
+    {id:'xp_1000',icon:'⚡',name:'1000 XP Kluba',desc:'Sakupi 1000 XP poena'},
+    {id:'cmd_pro',icon:'💻',name:'CMD Profesionalac',desc:'Nauči sve CMD komande'},
+    {id:'ps_expert',icon:'🔷',name:'PowerShell Expert',desc:'Završi PowerShell modul'},
+    {id:'scanner',icon:'🗺️',name:'Mrežni Detektiv',desc:'Nauči nmap osnove'},
+    {id:'security',icon:'🛡️',name:'Čuvar Bezbednosti',desc:'Završi sve bezbednosne lekcije'},
+  ];
+  c.innerHTML=`
+  <div class="section-title">🏆 Bedževi i Nagrade</div>
+  <div class="tip-box" style="margin-bottom:20px">Osvoji bedževe završavanjem lekcija i kvizova. Ukupno: ${all.length} bedževa, osvoji ${ST.badges.length}!</div>
+  <div class="badges-grid">
+    ${all.map(b=>`
+    <div class="badge-card ${ST.badges.includes(b.id)?'unlocked':'locked'}">
+      <span class="badge-icon">${b.icon}</span>
+      <div class="badge-name">${b.name}</div>
+      <div class="badge-desc">${b.desc}</div>
+      <div style="margin-top:8px;font-size:11px;color:${ST.badges.includes(b.id)?'var(--green)':'var(--text3)'}">${ST.badges.includes(b.id)?'✅ Osvoji':'🔒 Zaključano'}</div>
+    </div>`).join('')}
+  </div>`;
+}
+
+function renderAI(c){
+  c.innerHTML=`
+  <div class="ai-container">
+    <div class="ai-messages" id="ai-messages">${ST.aiMessages.map(m=>buildAIMsg(m)).join('')}</div>
+    <div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;gap:8px;flex-wrap:wrap">
+      ${['Objasni nmap','Šta je SQL Injection?','Kako postati etički haker?','Python za početnike','Šta je TCP/IP?','Nmap tutorial na srpskom'].map(s=>`<button onclick="sendAIMsg('${s}')" style="background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:11px;color:var(--text2);cursor:pointer;font-family:Syne,sans-serif;transition:all .2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border)'">${s}</button>`).join('')}
+    </div>
+    <div class="ai-input-row">
+      <textarea class="ai-input" id="ai-input" rows="2" placeholder="Postavi pitanje AI Mentoru... (Enter = pošalji, Shift+Enter = novi red)" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendAIFromInput()}"></textarea>
+      <button class="ai-send-btn" id="ai-send-btn" onclick="sendAIFromInput()">➤</button>
+    </div>
+  </div>`;
+  scrollAI();
+}
+
+function buildAIMsg(m){
+  return`<div class="ai-msg ${m.role}">
+    <div class="ai-avatar ${m.role}">${m.role==='bot'?'🤖':'👤'}</div>
+    <div class="ai-bubble">${m.text.replace(/\n/g,'<br>').replace(/\*(.*?)\*/g,'<strong>$1</strong>').replace(/`(.*?)`/g,'<code style="font-family:JetBrains Mono,monospace;background:var(--bg);padding:1px 5px;border-radius:4px;font-size:12px">$1</code>')}</div>
+  </div>`;
+}
+
+function scrollAI(){setTimeout(()=>{const el=document.getElementById('ai-messages');if(el)el.scrollTop=el.scrollHeight;},50);}
+
+function sendAIFromInput(){
+  const input=document.getElementById('ai-input');
+  if(!input||ST.aiLoading)return;
+  const text=input.value.trim();
+  if(!text)return;
+  input.value='';
+  sendAIMsg(text);
+}
+
+async function sendAIMsg(text){
+  if(ST.aiLoading)return;
+  ST.aiMessages.push({role:'user',text});
+  ST.aiLoading=true;
+  const container=document.getElementById('ai-messages');
+  if(!container){ST.aiLoading=false;return;}
+  container.innerHTML=ST.aiMessages.map(m=>buildAIMsg(m)).join('');
+  const typing=document.createElement('div');
+  typing.className='ai-msg bot';
+  typing.innerHTML=`<div class="ai-avatar bot">🤖</div><div class="ai-bubble"><div class="ai-typing"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div></div></div>`;
+  container.appendChild(typing);
+  scrollAI();
+  const btn=document.getElementById('ai-send-btn');
+  if(btn)btn.disabled=true;
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1000,
+        system:`Ti si AI Mentor za HackAcademy — srpsku platformu za učenje etičkog hakovanja, Linuxa, CMD, PowerShell, mreža i Python programiranja.
+
+UVEK odgovaraj NA SRPSKOM JEZIKU. Budi prijatan, jasan i prilagođen početnicima.
+
+Tvoje uloge:
+• Objašnjavaš Linux, CMD i PowerShell komande na srpskom sa praktičnim primerima
+• Objašnjavaš mrežne protokole (TCP/IP, DNS, DHCP, HTTP/HTTPS)
+• Pomažeš sa Python programiranjem
+• Objašnjavaš SAMO legalne aspekte etičkog hakovanja i sajber bezbednosti
+• NIKAD ne pomažeš sa ilegalnim aktivnostima ili napadima na sisteme bez dozvole
+
+Format odgovora:
+• Koristi emojije za bolje čitanje
+• Daj konkretne primere komandi i koda
+• Objasni greške jasno na srpskom
+• Navedi primere iz stvarnog života
+• Motiviši korisnika
+
+Za svaku komandu ili koncept objasni: šta radi, sintaksu, primer korišćenja i česte greške.`,
+        messages:ST.aiMessages.map(m=>({role:m.role==='bot'?'assistant':'user',content:m.text}))
+      })
+    });
+    const data=await resp.json();
+    const reply=data.content?.map(b=>b.text||'').join('')||'Izvini, došlo je do greške u komunikaciji sa AI serverom.';
+    ST.aiMessages.push({role:'bot',text:reply});
+  }catch(err){
+    ST.aiMessages.push({role:'bot',text:'⚠️ Greška u konekciji. Proveri internet vezu i pokušaj ponovo.\n\nAko si offline, mogu da pomognem sa informacijama koje su već u aplikaciji!'});
+  }
+  ST.aiLoading=false;
+  const c2=document.getElementById('ai-messages');
+  if(c2)c2.innerHTML=ST.aiMessages.map(m=>buildAIMsg(m)).join('');
+  const btn2=document.getElementById('ai-send-btn');
+  if(btn2)btn2.disabled=false;
+  scrollAI();
+}
+
+function showNotif(msg,dur=2500){
+  const n=document.getElementById('notif');
+  n.textContent=msg;n.style.display='block';
+  clearTimeout(n._t);n._t=setTimeout(()=>n.style.display='none',dur);
+}
+
+function toggleTheme(){
+  ST.theme=ST.theme==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',ST.theme==='light'?'light':'');
+  showNotif(ST.theme==='dark'?'🌙 Tamna tema aktivna':'☀️ Svetla tema aktivna');
+}
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
+
+function showProfile(){
+  document.getElementById('modal-content').innerHTML=`
+    <div class="modal-title">👤 Profil Korisnika</div>
+    <div style="text-align:center;margin-bottom:20px">
+      <div class="user-avatar" style="width:64px;height:64px;font-size:22px;margin:0 auto 12px">AK</div>
+      <div style="font-size:18px;font-weight:700">AleksaKović</div>
+      <div style="color:var(--text3);font-size:13px;margin-bottom:4px">aleksa.k@email.com</div>
+      <div style="font-size:12px;color:var(--accent)">Nivo ${ST.level} — Haker u Razvoju</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div class="stat-card"><div class="stat-label">⚡ Ukupno XP</div><div class="stat-value" style="color:var(--accent)">${ST.xp}</div></div>
+      <div class="stat-card"><div class="stat-label">📚 Lekcije</div><div class="stat-value" style="color:var(--accent2)">${ST.completedLessons}</div></div>
+      <div class="stat-card"><div class="stat-label">🏆 Bedževi</div><div class="stat-value" style="color:var(--yellow)">${ST.badges.length}</div></div>
+      <div class="stat-card"><div class="stat-label">🔥 Streak</div><div class="stat-value" style="color:var(--accent3)">7</div></div>
+    </div>
+    <div class="tip-box success">✅ Nastavi da učiš! Samo ${48-ST.completedLessons} lekcija do završetka svih modula!</div>`;
+  document.getElementById('modal-overlay').style.display='flex';
+}
+
+function closeModal(){
+  document.getElementById('modal-overlay').style.display='none';
+}
+
+// Initial render
+render();
+</script>
+</body>
+</html>
